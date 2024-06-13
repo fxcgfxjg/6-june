@@ -17,7 +17,7 @@ API_ID = "10577882" #config("API_ID", default=None, cast=int)
 API_HASH = "5ab4593a5f6c59a96b9abafdc7f08943" #config("API_HASH", default=None)
 BOT_TOKEN = "7368437982:AAFQ4fFnT_50GLM9Aap-aw3ZOv6zn8yO9oQ" #config("BOT_TOKEN", default=None)
 SESSION = "BQChZ9oANCcUTcKEVVMKOtKqUOLdMjF9ySyV8da5wngRJxDLjOtNVB06p5tMh9oWMoa5Dkpuqek7piSnbhsjxzF3NHLDxK3bj1X7PThULPOGZR4tpEqsaww3_8DqM67iaW33u8f3jtYMDjKgdGxXKLpe0uFyotW3mzeiT-j86elmNVgZ6s4gjywfDLfpIqblhcvo8Sl8tV75DIeUe_rkpaSmxHu1qkRphBfddI0ozVQFEUdUopNb2DV8IqqMkzOIQUuVVy70M45bsyGjBt6sFT5-60e8907hry2KiKadb4VTPhuNSb0pOlcUsqBFLFVoOM-oVuyqwnLeVBOmwkNjvA2iRvKZJwAAAABo7yz4AA" #config("SESSION", default=None)
-FORCESUB = #config("FORCESUB", default=None)
+FORCESUB = "None" #config("FORCESUB", default=None)
 AUTH = "10577882" #config("AUTH", default=None)
 SUDO_USERS = []
 
