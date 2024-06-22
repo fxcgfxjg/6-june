@@ -600,6 +600,7 @@ async def lock_command_handler(event):
         await event.respond(f"Channel ID {channel_id} locked successfully.")
     except Exception as e:
         await event.respond(f"Error occurred while locking channel ID: {str(e)}")
+
 async def get_msg(userbot, client, sender, edit_id, msg_link, i, file_n):
     edit = ""
     chat = ""
@@ -637,7 +638,7 @@ async def get_msg(userbot, client, sender, edit_id, msg_link, i, file_n):
             if msg.empty is not None:
                 await client.delete_messages(chat_id=sender, message_ids=edit_id)
                 return None            
-            if msg.media and msg.media == MessageMediaType.WEB_PAGE:
+            if msg.media and msg.media==MessageMediaType.WEB_PAGE:
                 a = b = True
                 edit = await client.edit_message_text(sender, edit_id, "Cloning.")
                 if '--'  in msg.text.html or '**' in msg.text.html or '__' in msg.text.html or '~~' in msg.text.html or '||' in msg.text.html or '```' in msg.text.html or '`' in msg.text.html:
@@ -661,58 +662,73 @@ async def get_msg(userbot, client, sender, edit_id, msg_link, i, file_n):
                     b = False
                 if a and b:
                     await send_message_with_chat_id(client, sender, msg.text.markdown, parse_mode=ParseMode.MARKDOWN)
+                
+                '''await client.send_message(sender, msg.text.html, parse_mode = 'html')
+                   await client.send_message(sender, msg.text.html, parse_mode = 'md')
+                   await client.send_message(sender, msg.text.markdown, parse_mode = 'html')
+                   await client.send_message(sender, msg.text.markdown, parse_mode = 'md')
+                   await client.send_message(sender, msg.text.markdown)
+                '''
                 await edit.delete()
                 return None
-            if msg.media == MessageMediaType.POLL:
+            if msg.media==MessageMediaType.POLL:
+                #await client.send_message(sender,'poll media cant be saved')
                 await client.edit_message_text(sender, edit_id, 'poll media cant be saved')
+                #await edit.delete()
                 return 
             edit = await client.edit_message_text(sender, edit_id, "Trying to Download.")
-            user_session = user_sessions.get(sender)
-            if user_session:
-              file = await user_bot.download_media(msg, progress=progress_for_pyrogram, progress_args=(client, "**__Unrestricting__: __[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)__**\n ", edit, time.time()))
-              await user_bot.stop()
-            else:
-              file = await userbot.download_media(msg, progress=progress_for_pyrogram, progress_args=(client, "**__Unrestricting__: __[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)__**\n ", edit, time.time()))            # Retrieve user's custom renaming preference if set, default to '@SmexyStore' otherwise
-            custom_rename_tag = get_user_rename_preference(sender)
-            # retriving name 
-            last_dot_index = str(file).rfind('.')
-            if last_dot_index != -1 and last_dot_index != 0:
-              original_file_name = str(file)[:last_dot_index]
-              file_extension = str(file)[last_dot_index + 1:]
-            else:
-              original_file_name = str(file)
-              file_extension = 'mp4'
             
-            #Removing Words
-            delete_words = load_delete_words(sender)
-            for word in delete_words:
-              original_file_name = original_file_name.replace(word, "")
-            
-            # Rename the file with the updated file name and custom renaming tag
-            video_file_name = original_file_name + " " + custom_rename_tag
-            new_file_name = original_file_name + " " + custom_rename_tag + "." + file_extension
-            os.rename(file, new_file_name)
-            file = new_file_name   
+            file = await userbot.download_media(
+                msg,
+                progress=progress_for_pyrogram,
+                progress_args=(
+                    client,
+                    "**__Unrestricting__: __[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)__**\n ",
+                    edit,
+                    time.time()
+                )
+            )  
           
             path = file
             await edit.delete()
-            upm = await client.send_message(sender, 'Preparing to Upload!')
+            upm = await client.send_message(sender, '__Preparing to Upload!__')
             
             caption = str(file)
             if msg.caption is not None:
                 caption = msg.caption
-            if file_extension in ['mkv', 'mp4', 'webm', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org', 'm4v']:
-                if file_extension in ['webm', 'mkv', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org', 'm4v']:
-                    path = video_file_name + ".mp4"
+            if str(file).split(".")[-1] in ['mkv', 'mp4', 'webm', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org']:
+                if str(file).split(".")[-1] in ['webm', 'mkv', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org']:
+                    path = str(file).split(".")[0] + ".mp4"
                     os.rename(file, path) 
-                    file = path
+                    file = str(file).split(".")[0] + ".mp4"
                 data = video_metadata(file)
                 duration = data["duration"]
-                wi = data["width"]
-                hi = data["height"]
+                wi= data["width"]
+                hi= data["height"]
                 logging.info(data)
 
                 if file_n != '':
+                    #path = ''
+                    if '.' in file_n:
+                        
+                        path = f'/app/downloads/{file_n}'
+                    else:
+                        
+                        path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
+
+                    os.rename(file, path)
+                    file = path
+                try:
+                    thumb_path = await screenshot(file, duration, sender)
+                except Exception as e:
+                    logging.info(e)
+                    thumb_path = None
+                
+                caption = f"{msg.caption}\n\n__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__" if msg.caption else "__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
+                await send_video_with_chat_id(client, sender, path, caption, duration, hi, wi, thumb_path, upm)
+            elif str(file).split(".")[-1] in ['jpg', 'jpeg', 'png', 'webp']:
+                if file_n != '':
+                    #path = ''
                     if '.' in file_n:
                         path = f'/app/downloads/{file_n}'
                     else:
@@ -720,61 +736,31 @@ async def get_msg(userbot, client, sender, edit_id, msg_link, i, file_n):
 
                     os.rename(file, path)
                     file = path
-                thumb_path = await screenshot(file, duration, sender)
-                # Modify the caption based on user's custom caption preference
-                custom_caption = get_user_caption_preference(sender)
-                original_caption = msg.caption if msg.caption else ''
-                final_caption = f"{original_caption}" if custom_caption else f"{original_caption}"
-                delete_words = load_delete_words(sender)
-                for word in delete_words:
-                  final_caption = final_caption.replace(word, '  ')
-                replacements = load_replacement_words(sender)
-                for word, replace_word in replacements.items():
-                  final_caption = final_caption.replace(word, replace_word)  
-                # final_caption = re.sub(r'\s{2,}', '  ', final_caption.strip())
-                # final_caption = re.sub(r'\n{2,}', '\n\n', final_caption)
-                caption = f"{final_caption}\n\n__**{custom_caption}**__" if custom_caption else f"{final_caption}\n\n__**[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
-                await send_video_with_chat_id(client, sender, path, caption, duration, hi, wi, thumb_path, upm)
-            elif str(file).split(".")[-1] in ['jpg', 'jpeg', 'png', 'webp']:
-                if file_n != '':
-                    if '.' in file_n:
-                        path = f'/app/downloads/{file_n}'
-                    else:
-                        path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
-                    os.rename(file, path)
-                    file = path
-                caption = msg.caption if msg.caption is not None else str(file).split("/")[-1]
-                await upm.edit("Uploading photo...")
+
+                
+                caption = f"{msg.caption}\n\n__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__" if msg.caption else "__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
+                await upm.edit("__Uploading photo...__")
+
                 await bot.send_file(sender, path, caption=caption)
             else:
                 if file_n != '':
+                    #path = ''
                     if '.' in file_n:
                         path = f'/app/downloads/{file_n}'
                     else:
                         path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
+
                     os.rename(file, path)
                     file = path
-                thumb_path = thumbnail(sender)
-                # Modify the caption based on user's custom caption preference
-                custom_caption = get_user_caption_preference(sender)
-                original_caption = msg.caption if msg.caption else ''
-                final_caption = f"{original_caption}" if custom_caption else f"{original_caption}"
-                delete_words = load_delete_words(sender)
-                for word in delete_words:
-                  final_caption = final_caption.replace(word, '  ')
-                replacements = load_replacement_words(sender)
-                for word, replace_word in replacements.items():
-                  final_caption = final_caption.replace(word, replace_word)  
-                # final_caption = re.sub(r'\s{2,}', '  ', final_caption.strip())
-                # final_caption = re.sub(r'\n{2,}', '\n\n', final_caption)
-                caption = f"{final_caption}\n\n__**{custom_caption}**__" if custom_caption else f"{final_caption}\n\n__**[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
+                thumb_path = "thumb.jpg"
+                
+                caption = f"{msg.caption}\n\n__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__" if msg.caption else "__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
                 await send_document_with_chat_id(client, sender, path, caption, thumb_path, upm)
-                    
             os.remove(file)
             await upm.delete()
             return None
         except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
-            await client.edit_message_text(sender, edit_id, "Bot is not in that channel/group \nsend the invite or add session vioa command /addsession link so that bot can join the channel\n\nTo generate session you can use our official bot - @stringsessionAK47bot")
+            await client.edit_message_text(sender, edit_id, "Bot is not in that channel/ group \n send the invite link so that bot can join the channel ")
             return None
     else:
         edit = await client.edit_message_text(sender, edit_id, "Cloning.")
@@ -782,8 +768,13 @@ async def get_msg(userbot, client, sender, edit_id, msg_link, i, file_n):
         await copy_message_with_chat_id(client, sender, chat, msg_id)
         await edit.delete()
         return None   
+ 
+async def get_bulk_msg(userbot, client, sender, msg_link, i):
+    x = await client.send_message(sender, "Processing!")
+    file_name = ''
+    await get_msg(userbot, client, sender, x.id, msg_link, i, file_name) 
 
-async def x(userbot, client, sender, edit_id, msg_link, i, file_n):
+async def ggn_new(userbot, client, sender, edit_id, msg_link, i, file_n):
     edit = ""
     chat = ""
     msg_id = int(i)
@@ -796,9 +787,6 @@ async def x(userbot, client, sender, edit_id, msg_link, i, file_n):
             chat = int('-100' + str(parts[4]))
         else:
             chat = int(msg_link.split("/")[-2])
-        if chat in load_saved_channel_ids():
-          await client.edit_message_text(sender, edit_id, "This channel is protected by the owner...")
-          return None          
         file = ""
         try:
             msg = await userbot.get_messages(chat_id = chat, message_ids = msg_id)
@@ -905,7 +893,7 @@ async def x(userbot, client, sender, edit_id, msg_link, i, file_n):
                     logging.info(e)
                     thumb_path = None
                 
-                caption = f"{msg.caption}\n\n__Unrestricted by **[Team SPY](https://t.me/dev_gagan)**__" if msg.caption else "__Unrestricted by **[Team SPY](https://t.me/dev_gagan)**__"
+                caption = f"{msg.caption}\n\n__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__" if msg.caption else "__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
                 await send_video_with_chat_id(client, sender, path, caption, duration, hi, wi, thumb_path, upm)
             elif str(file).split(".")[-1] in ['jpg', 'jpeg', 'png', 'webp']:
                 if file_n != '':
@@ -933,7 +921,7 @@ async def x(userbot, client, sender, edit_id, msg_link, i, file_n):
 
                     os.rename(file, path)
                     file = path
-                thumb_path = await screenshot(file, duration, sender)
+                thumb_path = "thumb.jpg"
                 
                 caption = f"{msg.caption}\n\n__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__" if msg.caption else "__Unrestricted by **[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
                 await send_document_with_chat_id(client, sender, path, caption, thumb_path, upm)
@@ -941,198 +929,7 @@ async def x(userbot, client, sender, edit_id, msg_link, i, file_n):
             await upm.delete()
             return None
         except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
-            await client.edit_message_text(sender, edit_id, "Bot is not in that channel/ group \n send the invite link so that bot can join the channel ")
-            return None
-    else:
-        edit = await client.edit_message_text(sender, edit_id, "Cloning.")
-        chat =  msg_link.split("/")[-2]
-        await copy_message_with_chat_id(client, sender, chat, msg_id)
-        await edit.delete()
-        return None   
-    
-async def get_bulk_msg(userbot, client, sender, msg_link, i):
-    x = await client.send_message(sender, "Processing!")
-    file_name = ''
-    await get_msg(userbot, client, sender, x.id, msg_link, i, file_name) 
-
-async def ggn_new(userbot, client, sender, edit_id, msg_link, i, file_n):
-    edit = ""
-    chat = ""
-    msg_id = int(i)
-    if msg_id == -1:
-        await client.edit_message_text(sender, edit_id, "**Invalid Link!**")
-        return None
-    if 't.me/c/'  in msg_link or 't.me/b/' in msg_link:
-        if "t.me/b" not in msg_link:
-          parts = msg_link.split("/")
-          chat = parts[4]
-          chat = int(f"-100{chat}")
-          
-        else:
-          chat = msg_link.split("/")[-2]
-        if chat in load_saved_channel_ids():
-          await client.edit_message_text(sender, edit_id, "This channel is protected by the owner...")
-          return None
-        file = ""
-        try:
-            user_session = user_sessions.get(sender)
-            session_name = f"{sender}app"
-            if user_session:
-              user_bot = Client(
-                session_name,
-                api_id=API_ID,
-                api_hash=API_HASH,
-                session_string=user_session
-              )
-              await user_bot.start()
-              msg = await user_bot.get_messages(chat_id=chat, message_ids=msg_id)
-            else:
-              msg = await userbot.get_messages(chat_id=chat, message_ids=msg_id)
-            logging.info(msg)
-            if msg.service is not None:
-                await client.delete_messages(chat_id=sender, message_ids=edit_id)
-                return None
-            if msg.empty is not None:
-                await client.delete_messages(chat_id=sender, message_ids=edit_id)
-                return None            
-            if msg.media and msg.media == MessageMediaType.WEB_PAGE:
-                a = b = True
-                edit = await client.edit_message_text(sender, edit_id, "Cloning.")
-                if '--'  in msg.text.html or '**' in msg.text.html or '__' in msg.text.html or '~~' in msg.text.html or '||' in msg.text.html or '```' in msg.text.html or '`' in msg.text.html:
-                    await send_message_with_chat_id(client, sender, msg.text.html, parse_mode=ParseMode.HTML)
-                    a = False
-                if '<b>' in msg.text.markdown or '<i>' in msg.text.markdown or '<em>' in msg.text.markdown  or '<u>' in msg.text.markdown or '<s>' in msg.text.markdown or '<spoiler>' in msg.text.markdown or '<a href=>' in msg.text.markdown or '<pre' in msg.text.markdown or '<code>' in msg.text.markdown or '<emoji' in msg.text.markdown:
-                    await send_message_with_chat_id(client, sender, msg.text.markdown, parse_mode=ParseMode.MARKDOWN)
-                    b = False
-                if a and b:
-                    await send_message_with_chat_id(client, sender, msg.text.markdown, parse_mode=ParseMode.MARKDOWN)
-                await edit.delete()
-                return None
-            if not msg.media and msg.text:
-                a = b = True
-                edit = await client.edit_message_text(sender, edit_id, "Cloning.")
-                if '--'  in msg.text.html or '**' in msg.text.html or '__' in msg.text.html or '~~' in msg.text.html or '||' in msg.text.html or '```' in msg.text.html or '`' in msg.text.html:
-                    await send_message_with_chat_id(client, sender, msg.text.html, parse_mode=ParseMode.HTML)
-                    a = False
-                if '<b>' in msg.text.markdown or '<i>' in msg.text.markdown or '<em>' in msg.text.markdown  or '<u>' in msg.text.markdown or '<s>' in msg.text.markdown or '<spoiler>' in msg.text.markdown or '<a href=>' in msg.text.markdown or '<pre' in msg.text.markdown or '<code>' in msg.text.markdown or '<emoji' in msg.text.markdown:
-                    await send_message_with_chat_id(client, sender, msg.text.markdown, parse_mode=ParseMode.MARKDOWN)
-                    b = False
-                if a and b:
-                    await send_message_with_chat_id(client, sender, msg.text.markdown, parse_mode=ParseMode.MARKDOWN)
-                await edit.delete()
-                return None
-            if msg.media == MessageMediaType.POLL:
-                await client.edit_message_text(sender, edit_id, 'poll media cant be saved')
-                return 
-            edit = await client.edit_message_text(sender, edit_id, "Trying to Download.")
-            user_session = user_sessions.get(sender)
-            if user_session:
-              file = await user_bot.download_media(msg, progress=progress_for_pyrogram, progress_args=(client, "**__Unrestricting__: __[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)__**\n ", edit, time.time()))
-              await user_bot.stop()
-            else:
-              file = await userbot.download_media(msg, progress=progress_for_pyrogram, progress_args=(client, "**__Unrestricting__: __[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)__**\n ", edit, time.time()))            # Retrieve user's custom renaming preference if set, default to '@SmexyStore' otherwise
-            custom_rename_tag = get_user_rename_preference(sender)
-            # retriving name 
-            last_dot_index = str(file).rfind('.')
-            if last_dot_index != -1 and last_dot_index != 0:
-              original_file_name = str(file)[:last_dot_index]
-              file_extension = str(file)[last_dot_index + 1:]
-            else:
-              original_file_name = str(file)
-              file_extension = 'mp4'
-            
-            #Removing Words
-            delete_words = load_delete_words(sender)
-            for word in delete_words:
-              original_file_name = original_file_name.replace(word, "")
-            
-            # Rename the file with the updated file name and custom renaming tag
-            video_file_name = original_file_name + " " + custom_rename_tag
-            new_file_name = original_file_name + " " + custom_rename_tag + "." + file_extension
-            os.rename(file, new_file_name)
-            file = new_file_name   
-          
-            path = file
-            await edit.delete()
-            upm = await client.send_message(sender, 'Preparing to Upload!')
-            
-            caption = str(file)
-            if msg.caption is not None:
-                caption = msg.caption
-            if file_extension in ['mkv', 'mp4', 'webm', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org', 'm4v']:
-                if file_extension in ['webm', 'mkv', 'mpe4', 'mpeg', 'ts', 'avi', 'flv', 'org', 'm4v']:
-                    path = video_file_name + ".mp4"
-                    os.rename(file, path) 
-                    file = path
-                data = video_metadata(file)
-                duration = data["duration"]
-                wi = data["width"]
-                hi = data["height"]
-                logging.info(data)
-
-                if file_n != '':
-                    if '.' in file_n:
-                        path = f'/app/downloads/{file_n}'
-                    else:
-                        path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
-
-                    os.rename(file, path)
-                    file = path
-                thumb_path = await screenshot(file, duration, sender)
-                # Modify the caption based on user's custom caption preference
-                custom_caption = get_user_caption_preference(sender)
-                original_caption = msg.caption if msg.caption else ''
-                final_caption = f"{original_caption}" if custom_caption else f"{original_caption}"
-                delete_words = load_delete_words(sender)
-                for word in delete_words:
-                  final_caption = final_caption.replace(word, '  ')
-                replacements = load_replacement_words(sender)
-                for word, replace_word in replacements.items():
-                  final_caption = final_caption.replace(word, replace_word)  
-                # final_caption = re.sub(r'\s{2,}', '  ', final_caption.strip())
-                # final_caption = re.sub(r'\n{2,}', '\n\n', final_caption)
-                caption = f"{final_caption}\n\n__**{custom_caption}**__" if custom_caption else f"{final_caption}\n\n__**[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
-                await send_video_with_chat_id(client, sender, path, caption, duration, hi, wi, thumb_path, upm)
-            elif str(file).split(".")[-1] in ['jpg', 'jpeg', 'png', 'webp']:
-                if file_n != '':
-                    if '.' in file_n:
-                        path = f'/app/downloads/{file_n}'
-                    else:
-                        path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
-                    os.rename(file, path)
-                    file = path
-                caption = msg.caption if msg.caption is not None else str(file).split("/")[-1]
-                await upm.edit("Uploading photo...")
-                await bot.send_file(sender, path, caption=caption)
-            else:
-                if file_n != '':
-                    if '.' in file_n:
-                        path = f'/app/downloads/{file_n}'
-                    else:
-                        path = f'/app/downloads/{file_n}.' + str(file).split(".")[-1]
-                    os.rename(file, path)
-                    file = path
-                thumb_path = thumbnail(sender)
-                # Modify the caption based on user's custom caption preference
-                custom_caption = get_user_caption_preference(sender)
-                original_caption = msg.caption if msg.caption else ''
-                final_caption = f"{original_caption}" if custom_caption else f"{original_caption}"
-                delete_words = load_delete_words(sender)
-                for word in delete_words:
-                  final_caption = final_caption.replace(word, '  ')
-                replacements = load_replacement_words(sender)
-                for word, replace_word in replacements.items():
-                  final_caption = final_caption.replace(word, replace_word)  
-                # final_caption = re.sub(r'\s{2,}', '  ', final_caption.strip())
-                # final_caption = re.sub(r'\n{2,}', '\n\n', final_caption)
-                caption = f"{final_caption}\n\n__**{custom_caption}**__" if custom_caption else f"{final_caption}\n\n__**[𝙎𝙈𝙀𝙓𝙔 𝙎𝙏𝙊𝙍𝙀 🇮🇳](https://t.me/SmexyStore)**__"
-                await send_document_with_chat_id(client, sender, path, caption, thumb_path, upm)
-                    
-            os.remove(file)
-            await upm.delete()
-            return None
-        except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
-            await client.edit_message_text(sender, edit_id, "Bot is not in that channel/group \nsend the invite or add session vioa command /addsession link so that bot can join the channel\n\nTo generate session you can use our official bot - @SmexyStringSessionBot")
+            await client.edit_message_text(sender, edit_id, "Bot is not in that channel/group \nsend the invite or add session vioa command /addsession link so that bot can join the channel\n\nTo generate session you can use our official bot - @stringsessionAK47bot")
             return None
     else:
         edit = await client.edit_message_text(sender, edit_id, "Cloning.")
