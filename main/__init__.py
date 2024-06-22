@@ -13,12 +13,12 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("telethon").setLevel(logging.WARNING)
 
 # variables
-API_ID = "10577882" #config("API_ID", default=None, cast=int)
-API_HASH = "5ab4593a5f6c59a96b9abafdc7f08943" #config("API_HASH", default=None)
-BOT_TOKEN = "7368437982:AAFQ4fFnT_50GLM9Aap-aw3ZOv6zn8yO9oQ" #config("BOT_TOKEN", default=None)
-SESSION = "BQChZ9oANCcUTcKEVVMKOtKqUOLdMjF9ySyV8da5wngRJxDLjOtNVB06p5tMh9oWMoa5Dkpuqek7piSnbhsjxzF3NHLDxK3bj1X7PThULPOGZR4tpEqsaww3_8DqM67iaW33u8f3jtYMDjKgdGxXKLpe0uFyotW3mzeiT-j86elmNVgZ6s4gjywfDLfpIqblhcvo8Sl8tV75DIeUe_rkpaSmxHu1qkRphBfddI0ozVQFEUdUopNb2DV8IqqMkzOIQUuVVy70M45bsyGjBt6sFT5-60e8907hry2KiKadb4VTPhuNSb0pOlcUsqBFLFVoOM-oVuyqwnLeVBOmwkNjvA2iRvKZJwAAAABo7yz4AA" #config("SESSION", default=None)
-FORCESUB = None #config("FORCESUB", default=None)
-AUTH = "10577882" #config("AUTH", default=None)
+API_ID = "27815405" #config("API_ID", default=None, cast=int)
+API_HASH = "4e70821cd2af3322f7cf2f2887e32821" #config("API_HASH", default=None)
+BOT_TOKEN = "7231166671:AAF2-bSCPm9xH8KyjtUZChxkkOpX_sCrUHM" #config("BOT_TOKEN", default=None)
+SESSION = "BQGobe0AT7MCMoLbHhonlFYkEqm6_DGND8HW2qzCmG1Dhc7YsB38duNBTHVncgOzicpIShuh48yEPfkodn_M1EPsBgNJ-ON508t-M1R7eGpCvEcCiYR6HgVti0KaR7KekFNm40Wbd7QsHuG9Fc86OEVxp7sk9SR8hIVMCXCPuGF49Sypf1Sn5kecmuby8As3GsqviB-W8oPtGgPRJw2CVDkeUlBRbVeof1B7HfSN2eriqX-WnNrhttXUInyrn8jEDaegTvUiuL_mtaX8uSpVBVMFf8ImSATpHmIFNI5abfaU0UeOoVVtcYkM4We2tKlObG2ROrU2xtE5C3-aKCdV01hI9Bh8qwAAAAGOJFsyAA" #config("SESSION", default=None)
+FORCESUB = "SmexyStore" #config("FORCESUB", default=None)
+AUTH = "6679714610" #config("AUTH", default=None)
 SUDO_USERS = []
 
 if len(AUTH) != 0:
