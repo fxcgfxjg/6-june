@@ -1,4 +1,4 @@
-# Join t.me/dev_gagan
+# Join t.me/SmexyStore
 import re
 import asyncio, time, os
 import pymongo
